@@ -91,14 +91,35 @@ export default function CartDrawer() {
   const creditsDiscount = applyCredits ? maxCredits : 0
   const finalTotal = Math.max(0, total - creditsDiscount)
 
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+
   const handleCheckout = async () => {
+    if (checkoutLoading) return
+    setCheckoutLoading(true)
     if (applyCredits && creditsDiscount > 0) {
       try {
         await axios.post('/api/v1/credits/redeem', { credits_used: creditsDiscount })
         setCreditsBalance(b => b - creditsDiscount)
       } catch {}
     }
+
+    try {
+      for (const item of items) {
+        for (let i = 0; i < item.qty; i++) {
+          await axios.post('/api/v1/orders/', {
+            listing_id: item.id,
+            product_name: item.title || item.product_name,
+            image_url: item.image_url ?? null,
+            grade: item.grade || 'A',
+            original_price: item.suggested_price_inr,
+            user_role: 'buyer'
+          }).catch(() => {})
+        }
+      }
+    } catch {}
+
     setOrdered(true)
+    setCheckoutLoading(false)
     setTimeout(() => clearCart(), 300)
   }
 
@@ -252,9 +273,10 @@ export default function CartDrawer() {
               {/* Checkout button */}
               <button
                 onClick={handleCheckout}
-                className="w-full bg-amz-yellow hover:bg-amz-yellow-hover active:bg-[#e8bb00] text-amz-text font-bold py-3 rounded-full border border-[#FFA41C] transition-colors shadow-sm text-sm"
+                disabled={checkoutLoading}
+                className="w-full bg-amz-yellow hover:bg-amz-yellow-hover active:bg-[#e8bb00] disabled:opacity-50 text-amz-text font-bold py-3 rounded-full border border-[#FFA41C] transition-colors shadow-sm text-sm"
               >
-                Proceed to Checkout ({count} {count === 1 ? 'item' : 'items'})
+                {checkoutLoading ? 'Processing...' : `Proceed to Checkout (${count} ${count === 1 ? 'item' : 'items'})`}
               </button>
 
               <p className="text-center text-[10px] text-gray-400">

@@ -324,7 +324,7 @@ def _call_groq_vision(
     b64 = base64.standard_b64encode(image_bytes).decode()
     client = Groq(api_key=settings.groq_api_key)
     resp = client.chat.completions.create(
-        model="meta-llama/llama-4-scout-17b-16e-instruct",
+        model="llama-3.2-11b-vision-preview",
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {
