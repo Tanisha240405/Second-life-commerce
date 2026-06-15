@@ -5,7 +5,7 @@ import axios from 'axios'
 const STATUS_FLOW = [
   'pending', 'confirmed', 'agent_assigned', 'agent_en_route',
   'agent_arrived', 'agent_analyzed', 'item_picked_up',
-  'out_for_delivery', 'dispatched', 'delivered',
+  'dispatched', 'out_for_delivery', 'delivered',
 ]
 
 const STATUS_CFG = {
@@ -288,7 +288,7 @@ function Timeline({ events, statusIndex, isCancelled }) {
 }
 
 function OrderCard({ order, onUpdate }) {
-  const [showTimeline, setShowTimeline] = useState(false)
+  const [showTimeline, setShowTimeline] = useState(true)
   const [advancing, setAdvancing] = useState(false)
   const isCancelled = order.status === 'cancelled'
   const cfg = STATUS_CFG[order.status] ?? STATUS_CFG.pending
@@ -382,7 +382,7 @@ function OrderCard({ order, onUpdate }) {
         <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${isCancelled ? 'bg-red-300' : 'bg-gradient-to-r from-amz-orange to-amber-400'}`}
-            style={{ width: `${Math.round((order.status_index / (STATUS_FLOW.length - 1)) * 100)}%` }}
+            style={{ width: `${Math.max(3, Math.round((order.status_index / (STATUS_FLOW.length - 1)) * 100))}%` }}
           />
         </div>
 
