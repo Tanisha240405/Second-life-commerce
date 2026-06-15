@@ -149,22 +149,16 @@ export function getProductImage(productName) {
 
 export function getProductCategory(productName) {
   if (!productName) return 'Other'
-  const lower = productName.toLowerCase()
-  const electronics = ['headphone', 'earbud', 'earphone', 'phone', 'mobile', 'laptop', 'tablet', 'ipad',
-    'camera', 'speaker', 'watch', 'band', 'tv', 'television', 'mouse', 'router', 'wifi', 'usb', 'hub',
-    'airpods', 'galaxy', 'iphone', 'macbook', 'kindle']
-  const apparel = ['shirt', 'tshirt', 't-shirt', 'jeans', 'denim', 'hoodie', 'shoe', 'sneaker',
-    'boot', 'footwear', 'top', 'pant', 'trouser', 'sweatshirt', 'jacket', 'sweater', 'tee']
-  const home = ['cooker', 'fryer', 'vacuum', 'lamp', 'mixer', 'grinder', 'bottle', 'blender',
-    'juicer', 'microwave', 'kettle', 'iron', 'fan', 'heater', 'cookware', 'pan', 'pot']
-  const books = ['book', 'novel', 'ncert', 'textbook', 'paperback', 'hardcover', 'habits', 'dad']
-  const sports = ['football', 'badminton', 'racket', 'goggle', 'gym', 'gloves', 'cricket', 'basketball',
-    'yoga', 'dumbbell', 'barbell', 'mat', 'rope', 'soccer', 'swim']
+  const electronics = /\b(headphone|headphones|earbud|earbuds|earphone|earphones|phone|mobile|laptop|tablet|ipad|camera|speaker|speakers|watch|band|tv|television|mouse|router|wifi|usb|hub|airpods|galaxy|iphone|macbook|kindle)\b/i
+  const apparel = /\b(shirt|tshirt|t-shirt|jeans|denim|hoodie|shoe|shoes|sneaker|sneakers|boot|boots|footwear|top|pant|pants|trouser|trousers|sweatshirt|jacket|sweater|tee)\b/i
+  const home = /\b(cooker|fryer|vacuum|lamp|mixer|grinder|bottle|blender|juicer|microwave|kettle|iron|fan|heater|cookware|pan|pot)\b/i
+  const books = /\b(book|books|novel|ncert|textbook|paperback|hardcover|habits|dad)\b/i
+  const sports = /\b(football|badminton|racket|goggle|goggles|gym|gloves|cricket|basketball|yoga|dumbbell|barbell|mat|rope|soccer|swim)\b/i
 
-  if (electronics.some(k => lower.includes(k))) return 'Electronics'
-  if (apparel.some(k => lower.includes(k))) return 'Apparel'
-  if (home.some(k => lower.includes(k))) return 'Home'
-  if (books.some(k => lower.includes(k))) return 'Books'
-  if (sports.some(k => lower.includes(k))) return 'Sports'
+  if (electronics.test(productName)) return 'Electronics'
+  if (apparel.test(productName)) return 'Apparel'
+  if (home.test(productName)) return 'Home'
+  if (books.test(productName)) return 'Books'
+  if (sports.test(productName)) return 'Sports'
   return 'Other'
 }
