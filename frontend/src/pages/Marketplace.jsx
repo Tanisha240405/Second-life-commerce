@@ -156,12 +156,17 @@ function RecoCard({ listing }) {
   const { addItem } = useCart()
   const [addedState, setAddedState] = useState('idle')
   const [imgErr, setImgErr]         = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
   const imgUrl = listing.image_url || getProductImage(listing.product_name)
   const badge  = GRADE_BADGE[listing.grade] ?? GRADE_BADGE['C']
 
   return (
-    <div className="flex-shrink-0 w-28 sm:w-32 bg-white border border-amz-border rounded hover:border-amz-orange hover:shadow-md transition-all group">
-      <div className="bg-[#f8f8f8] rounded-t h-20 sm:h-24 flex items-center justify-center overflow-hidden">
+    <>
+      <div 
+        className="flex-shrink-0 w-28 sm:w-32 bg-white border border-amz-border rounded hover:border-amz-orange hover:shadow-md transition-all group cursor-pointer"
+        onClick={() => setShowDetail(true)}
+      >
+        <div className="bg-[#f8f8f8] rounded-t h-20 sm:h-24 flex items-center justify-center overflow-hidden">
         {imgUrl && !imgErr ? (
           <img
             src={imgUrl}
@@ -201,7 +206,11 @@ function RecoCard({ listing }) {
           {addedState === 'added' ? '✓ Added' : '+ Cart'}
         </button>
       </div>
-    </div>
+      </div>
+      {showDetail && (
+        <ListingDetailModal listing={listing} onClose={(e) => { e?.stopPropagation(); setShowDetail(false); }} />
+      )}
+    </>
   )
 }
 
@@ -907,8 +916,16 @@ export default function Marketplace() {
 
   useEffect(() => {
     setLoading(true)
-    axios.get('/api/v1/marketplace/listings')
-      .then(r => setAllListings(r.data))
+    Promise.all([
+      axios.get('/api/v1/marketplace/listings'),
+      axios.get('/api/v1/orders/')
+    ])
+      .then(([lRes, oRes]) => {
+        const myOrders = Array.isArray(oRes.data) ? oRes.data.filter(o => o.user_role === 'seller') : []
+        const myListingIds = new Set(myOrders.map(o => o.listing_id))
+        const othersListings = Array.isArray(lRes.data) ? lRes.data.filter(l => !myListingIds.has(l.id)) : []
+        setAllListings(othersListings)
+      })
       .catch(() => setAllListings([]))
       .finally(() => setLoading(false))
   }, [])

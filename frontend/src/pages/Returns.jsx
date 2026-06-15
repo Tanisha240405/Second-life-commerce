@@ -273,9 +273,15 @@ export default function Returns() {
     setSwapSuggestions([])
     setSwapLoading(true)
     try {
-      const { data } = await axios.get('/api/v1/marketplace/listings', { params: { limit: 100 } })
+      const [lRes, oRes] = await Promise.all([
+        axios.get('/api/v1/marketplace/listings', { params: { limit: 100 } }),
+        axios.get('/api/v1/orders/')
+      ])
+      const myListingIds = new Set((oRes.data || []).filter(o => o.user_role === 'seller').map(o => o.listing_id))
+      const othersListings = (lRes.data || []).filter(l => !myListingIds.has(l.id))
+
       const ourPrice = result?.estimated_resale_value_inr ?? 0
-      const filtered = data
+      const filtered = othersListings
         .filter(l => l.grade === 'A' || l.grade === 'B')
         .filter(l => { const r = l.suggested_price_inr / (ourPrice || 1); return r >= 0.2 && r <= 5 })
         .sort((a, b) => Math.abs(a.suggested_price_inr - ourPrice) - Math.abs(b.suggested_price_inr - ourPrice))
